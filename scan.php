@@ -35,216 +35,18 @@ if (isset($_POST['nisn'])) {
             min-height: 100vh;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
-
-        .scan-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px 20px 0 0 !important;
-            text-align: center;
-            padding: 20px;
-            border: none;
-        }
-
-        .camera-dropdown {
-            margin-bottom: 20px;
-        }
-
-        .camera-select {
-            border-radius: 15px;
-            border: 2px solid #e9ecef;
-            padding: 12px 15px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .camera-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-
-        .video-container {
-            position: relative;
-            background: #000;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        #video {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-        }
-
-        .scan-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            border: 3px solid #fff;
-            border-radius: 15px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
-            animation: scan-pulse 2s infinite;
-        }
-
-        .scan-overlay::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            border: 2px solid #667eea;
-            border-radius: 15px;
-            animation: scan-rotate 3s linear infinite;
-        }
-
-        .scan-text {
-            position: absolute;
-            bottom: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        @keyframes scan-pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        @keyframes scan-rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .result-card {
-            background: linear-gradient(135deg, #48CAE4 0%, #0096C7 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-            animation: slideIn 0.5s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .data-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-
-        .data-label {
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .data-value {
-            font-weight: 500;
-        }
-
-        .btn-reset {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-            border: none;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin-top: 15px;
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-            color: white;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .status-message {
-            text-align: center;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-        }
-
-        .status-success {
-            background: rgba(40, 167, 69, 0.1);
-            color: #28a745;
-            border: 1px solid rgba(40, 167, 69, 0.2);
-        }
-
-        .status-error {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-            border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-
-        @media (max-width: 576px) {
-            .scan-container {
-                padding: 15px;
-            }
-            
-            #video {
-                height: 250px;
-            }
-            
-            .scan-overlay {
-                width: 150px;
-                height: 150px;
-            }
-        }
+        .scan-container { max-width: 500px; margin: 0 auto; padding: 20px; }
+        .card { border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95); }
+        .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0 !important; text-align: center; padding: 20px; border: none; }
+        .video-container { position: relative; background: #000; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
+        #video { width: 100%; height: 300px; object-fit: cover; }
+        .scan-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 3px solid #fff; border-radius: 15px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3); }
+        .scan-text { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: 500; }
+        .result-card { background: linear-gradient(135deg, #48CAE4 0%, #0096C7 100%); color: white; border-radius: 15px; padding: 20px; margin-top: 20px; display: none; }
+        .data-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
+        .btn-reset { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); border: none; color: white; padding: 12px 25px; border-radius: 25px; font-weight: 500; margin-top: 15px; }
+        /* Debug Panel */
+        #debug { background:#000; color:#0f0; padding:10px; font-size:12px; max-height:200px; overflow:auto; margin-top:15px; border-radius:8px; }
     </style>
 </head>
 <body>
@@ -255,49 +57,35 @@ if (isset($_POST['nisn'])) {
                     <div class="card">
                         <div class="card-header">
                             <h4 class="mb-0">
-                                <i class="material-icons" style="vertical-align: middle; margin-right: 10px;">qr_code_scanner</i>
-                                Scan QR Code Siswa
+                                <i class="material-icons">qr_code_scanner</i> Scan QR Code Siswa
                             </h4>
                         </div>
                         <div class="card-body">
                             <!-- Dropdown Pilihan Kamera -->
                             <div class="camera-dropdown">
                                 <label for="cameraSelect" class="form-label fw-bold">Pilih Kamera:</label>
-                                <select id="cameraSelect" class="form-select camera-select">
+                                <select id="cameraSelect" class="form-select">
                                     <option value="">Memuat kamera...</option>
                                 </select>
                             </div>
-
                             <!-- Video Container -->
                             <div class="video-container">
                                 <video id="video" autoplay muted playsinline></video>
-                                <div class="scan-overlay">
-                                    <div class="scan-text">Arahkan QR Code di sini</div>
-                                </div>
-                                <canvas id="canvas" style="display: none;"></canvas>
+                                <div class="scan-overlay"><div class="scan-text">Arahkan QR Code di sini</div></div>
+                                <canvas id="canvas" style="display:none;"></canvas>
                             </div>
-
                             <!-- Status Message -->
-                            <div id="statusMessage" class="status-message" style="display: none;"></div>
-
-                            <!-- Loading -->
-                            <div id="loading" class="loading" style="display: none;">
-                                <div class="loading-spinner"></div>
-                                <p>Mencari data siswa...</p>
-                            </div>
-
+                            <div id="statusMessage" class="alert" style="display:none;"></div>
                             <!-- Hasil Scan -->
                             <div id="resultCard" class="result-card">
-                                <h5 class="mb-3">
-                                    <i class="material-icons" style="vertical-align: middle; margin-right: 10px;">person</i>
-                                    Data Siswa
-                                </h5>
+                                <h5><i class="material-icons">person</i> Data Siswa</h5>
                                 <div id="studentData"></div>
                                 <button id="resetBtn" class="btn btn-reset w-100">
-                                    <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">refresh</i>
-                                    Scan Lagi
+                                    <i class="material-icons">refresh</i> Scan Lagi
                                 </button>
                             </div>
+                            <!-- Debug Panel -->
+                            <div id="debug">[DEBUG LOG]</div>
                         </div>
                     </div>
                 </div>
@@ -305,233 +93,140 @@ if (isset($_POST['nisn'])) {
         </div>
     </div>
 
-    <script>
-        let video, canvas, context, currentStream;
-        let scanning = true;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            video = document.getElementById('video');
-            canvas = document.getElementById('canvas');
-            context = canvas.getContext('2d');
-            
-            initCamera();
-            
-            // Event listener untuk reset button
-            document.getElementById('resetBtn').addEventListener('click', resetScan);
-            
-            // Event listener untuk perubahan kamera
-            document.getElementById('cameraSelect').addEventListener('change', function() {
-                if (this.value) {
-                    switchCamera(this.value);
-                }
-            });
+<script>
+let video, canvas, context, currentStream;
+let scanning = true;
+
+function debugLog(msg) {
+    let debugDiv = document.getElementById('debug');
+    debugDiv.innerHTML += "<br>" + msg;
+    debugDiv.scrollTop = debugDiv.scrollHeight;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    context = canvas.getContext('2d');
+
+    initCamera();
+
+    document.getElementById('resetBtn').addEventListener('click', resetScan);
+    document.getElementById('cameraSelect').addEventListener('change', function() {
+        if (this.value) switchCamera(this.value);
+    });
+});
+
+// Inisialisasi kamera
+async function initCamera() {
+    try {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const select = document.getElementById('cameraSelect');
+        select.innerHTML = '';
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `Kamera ${index+1}`;
+            select.appendChild(option);
         });
-
-        // Inisialisasi kamera dan daftar perangkat
-        async function initCamera() {
-            try {
-                // Minta izin akses kamera
-                await navigator.mediaDevices.getUserMedia({ video: true });
-                
-                // Dapatkan daftar perangkat kamera
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                
-                const select = document.getElementById('cameraSelect');
-                select.innerHTML = '';
-                
-                videoDevices.forEach((device, index) => {
-                    const option = document.createElement('option');
-                    option.value = device.deviceId;
-                    option.text = device.label || `Kamera ${index + 1}`;
-                    select.appendChild(option);
-                });
-                
-                // Gunakan kamera pertama sebagai default
-                if (videoDevices.length > 0) {
-                    select.value = videoDevices[0].deviceId;
-                    switchCamera(videoDevices[0].deviceId);
-                }
-                
-            } catch (error) {
-                console.error('Error accessing camera:', error);
-                showPermissionError();
-            }
+        if (videoDevices.length > 0) {
+            select.value = videoDevices[0].deviceId;
+            switchCamera(videoDevices[0].deviceId);
         }
+    } catch (e) {
+        debugLog("Error akses kamera: " + e);
+        showStatus("Tidak dapat mengakses kamera", "danger");
+    }
+}
 
-        // Switch kamera
-        async function switchCamera(deviceId) {
-            try {
-                // Stop stream sebelumnya
-                if (currentStream) {
-                    currentStream.getTracks().forEach(track => track.stop());
-                }
-                
-                const constraints = {
-                    video: {
-                        deviceId: { exact: deviceId },
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                };
-                
-                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = currentStream;
-                
-                video.onloadedmetadata = function() {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    scanning = true;
-                    scanForQR();
-                };
-                
-            } catch (error) {
-                console.error('Error switching camera:', error);
-                showStatus('Gagal mengganti kamera.', 'error');
-            }
-        }
-
-        // Scan QR Code
-        function scanForQR() {
-            if (!scanning || video.readyState !== video.HAVE_ENOUGH_DATA) {
-                requestAnimationFrame(scanForQR);
-                return;
-            }
-            
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-            
-            if (code) {
-                scanning = false;
-                processQRCode(code.data);
-            } else {
-                requestAnimationFrame(scanForQR);
-            }
-        }
-
-        // Proses hasil QR Code
-        function processQRCode(qrData) {
-            showStatus('QR Code terdeteksi: ' + qrData, 'success');
-            showLoading(true);
-            
-            // Stop kamera
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-            
-            // Kirim AJAX request untuk mencari data siswa
-            fetch('', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'nisn=' + encodeURIComponent(qrData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                showLoading(false);
-                
-                if (data.status === 'success') {
-                    showStudentData(data.data);
-                } else {
-                    showStatus(data.message, 'error');
-                    setTimeout(resetScan, 3000); // Auto reset setelah 3 detik
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showLoading(false);
-                showStatus('Terjadi kesalahan saat mencari data siswa.', 'error');
-                setTimeout(resetScan, 3000);
-            });
-        }
-
-        // Tampilkan data siswa
-        function showStudentData(student) {
-            const studentDataDiv = document.getElementById('studentData');
-            studentDataDiv.innerHTML = `
-                <div class="data-item">
-                    <span class="data-label">ID Siswa:</span>
-                    <span class="data-value">${student.id_siswa}</span>
-                </div>
-                <div class="data-item">
-                    <span class="data-label">NIS:</span>
-                    <span class="data-value">${student.nis}</span>
-                </div>
-                <div class="data-item">
-                    <span class="data-label">NISN:</span>
-                    <span class="data-value">${student.nisn}</span>
-                </div>
-                <div class="data-item">
-                    <span class="data-label">Nama Siswa:</span>
-                    <span class="data-value">${student.nama_siswa}</span>
-                </div>
-            `;
-            
-            document.getElementById('resultCard').style.display = 'block';
-            hideStatus();
-        }
-
-        // Reset scan
-        function resetScan() {
+// Ganti kamera
+async function switchCamera(deviceId) {
+    try {
+        if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+        const constraints = {
+            video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        };
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = currentStream;
+        video.onloadedmetadata = function() {
+            debugLog("Video loaded: " + video.videoWidth + "x" + video.videoHeight);
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             scanning = true;
-            document.getElementById('resultCard').style.display = 'none';
-            hideStatus();
-            
-            const deviceId = document.getElementById('cameraSelect').value;
-            if (deviceId) {
-                switchCamera(deviceId);
-            } else {
-                initCamera();
-            }
-        }
+            debugLog("Start scanning...");
+            scanForQR();
+        };
+    } catch (e) {
+        debugLog("Error switchCamera: " + e);
+        showStatus("Gagal ganti kamera", "danger");
+    }
+}
 
-        // Show loading
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
+// Scan QR
+function scanForQR() {
+    if (!scanning) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code) {
+            debugLog("QR Detected: " + code.data);
+            scanning = false;
+            processQRCode(code.data);
+            return;
         }
+    }
+    debugLog("Scanning...");
+    requestAnimationFrame(scanForQR);
+}
 
-        // Show status message
-        function showStatus(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = `status-message status-${type}`;
-            statusDiv.style.display = 'block';
-        }
+// Proses hasil QR
+function processQRCode(qrData) {
+    showStatus("QR Terdeteksi: " + qrData, "success");
+    if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+    fetch("", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "nisn=" + encodeURIComponent(qrData)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === "success") showStudentData(data.data);
+        else showStatus(data.message, "danger");
+    })
+    .catch(e => {
+        debugLog("Fetch error: " + e);
+        showStatus("Error mencari data siswa", "danger");
+    });
+}
 
-        // Hide status message
-        function hideStatus() {
-            document.getElementById('statusMessage').style.display = 'none';
-        }
+// Tampilkan data siswa
+function showStudentData(s) {
+    document.getElementById("studentData").innerHTML = `
+        <div class="data-item"><b>ID:</b> ${s.id_siswa}</div>
+        <div class="data-item"><b>NIS:</b> ${s.nis}</div>
+        <div class="data-item"><b>NISN:</b> ${s.nisn}</div>
+        <div class="data-item"><b>Nama:</b> ${s.nama_siswa}</div>
+    `;
+    document.getElementById("resultCard").style.display = "block";
+}
 
-        // Show permission error with clickable link
-        function showPermissionError() {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.innerHTML = 'Tidak dapat mengakses kamera. <a href="javascript:void(0)" onclick="requestCameraPermission()" style="color: #dc3545; text-decoration: underline; font-weight: bold;">klik disini untuk perizinan.</a>';
-            statusDiv.className = 'status-message status-error';
-            statusDiv.style.display = 'block';
-        }
+// Reset scan
+function resetScan() {
+    scanning = true;
+    document.getElementById("resultCard").style.display = "none";
+    const deviceId = document.getElementById("cameraSelect").value;
+    if (deviceId) switchCamera(deviceId); else initCamera();
+}
 
-        // Request camera permission manually
-        async function requestCameraPermission() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                stream.getTracks().forEach(track => track.stop()); // Stop immediately
-                hideStatus();
-                initCamera(); // Retry initialization
-            } catch (error) {
-                console.error('Permission denied:', error);
-                showStatus('Akses kamera ditolak. Silakan refresh halaman dan berikan izin akses kamera.', 'error');
-            }
-        }
-
-        // Cleanup saat halaman ditutup
-        window.addEventListener('beforeunload', function() {
-            if (currentStream) {
-                currentStream.getTracks().forEach(track => track.stop());
-            }
-        });
-    </script>
+// Status message
+function showStatus(msg, type) {
+    const el = document.getElementById("statusMessage");
+    el.textContent = msg;
+    el.className = "alert alert-" + type;
+    el.style.display = "block";
+}
+</script>
 </body>
 </html>
