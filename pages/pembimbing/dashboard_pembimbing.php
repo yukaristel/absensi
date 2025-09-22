@@ -214,53 +214,250 @@ $jumlah_jurnal_hari_ini = mysqli_fetch_assoc($query_jurnal_hari_ini)['total'];
     </div>
 
     <div class="col-12 d-flex justify-content-center" style="margin-top:25px;">
-          <a href="scan.php" class="scan-btn" title="Scan QR / Barcode">
-            <span class="material-icons scan-icon">play_arrow</span>
-          </a>
+            <div class="demo-item">
+                <div class="variant-title">Vibrant Red</div>
+                <div class="scan-container">
+                    <a href="scan.php" class="scan-btn scan-btn-variant-2" title="Scan QR / Barcode">
+                        <span class="material-icons scan-icon">qr_code</span>
+                        <div class="scan-label">Scan Code</div>
+                    </a>
+                </div>
+            </div>
     </div>
 
     <style>
-    /* Tombol bulat bg-gradient-primary dengan animasi pulse + tilt */
-    .scan-btn{
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      color: #fff;
-      z-index: 9999;
-      box-shadow: 0 8px 18px rgba(2,6,23,0.2);
-      background: linear-gradient(135deg,#0062E6 0%,#48A4FF 100%);
-      transform: translateZ(0);
-      animation: scan-pulse 2.6s infinite ease-in-out, scan-tilt 6s infinite linear;
-    }
+        .scan-container {
+            position: relative;
+            margin: 50px 0;
+        }
 
-    .scan-btn .scan-icon{
-      font-size: 28px;
-      transform: translateY(-1px);
-    }
+        /* Main scan button */
+        .scan-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #fff;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 
+                0 10px 30px rgba(102, 126, 234, 0.4),
+                0 0 0 0 rgba(102, 126, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: 
+                floating 3s ease-in-out infinite,
+                pulse-ring 2s infinite;
+        }
 
-    @keyframes scan-pulse{
-      0%{ box-shadow: 0 8px 18px rgba(2,6,23,0.18), 0 0 0 0 rgba(72,164,255,0.0); }
-      50%{ box-shadow: 0 12px 28px rgba(2,6,23,0.22), 0 0 0 20px rgba(72,164,255,0.06); }
-      100%{ box-shadow: 0 8px 18px rgba(2,6,23,0.18), 0 0 0 0 rgba(72,164,255,0.0); }
-    }
+        .scan-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 
+                0 20px 40px rgba(102, 126, 234, 0.6),
+                0 0 0 0 rgba(102, 126, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            color: #fff;
+            text-decoration: none;
+        }
 
-    @keyframes scan-tilt{
-      0%{ transform: rotate(0deg); }
-      50%{ transform: rotate(8deg); }
-      100%{ transform: rotate(0deg); }
-    }
+        .scan-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
 
-    /* responsif: kecilkan tombol di mobile */
-    @media (max-width: 576px){
-      .scan-btn{ width:54px; height:54px; }
-      .scan-btn .scan-icon{ font-size:22px }
-    }
+        /* Scan icon with rotation */
+        .scan-icon {
+            font-size: 36px;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .scan-btn:hover .scan-icon {
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        /* Animated rings around button */
+        .scan-btn::before,
+        .scan-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 50%;
+            animation: ripple 2s infinite;
+        }
+
+        .scan-btn::before {
+            width: 100px;
+            height: 100px;
+            animation-delay: 0s;
+        }
+
+        .scan-btn::after {
+            width: 120px;
+            height: 120px;
+            animation-delay: 0.7s;
+        }
+
+        /* Floating animation */
+        @keyframes floating {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Ripple effect */
+        @keyframes ripple {
+            0% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.4);
+            }
+        }
+
+        /* Pulse ring animation */
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 
+                    0 10px 30px rgba(102, 126, 234, 0.4),
+                    0 0 0 0 rgba(102, 126, 234, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                box-shadow: 
+                    0 15px 40px rgba(102, 126, 234, 0.5),
+                    0 0 0 15px rgba(102, 126, 234, 0.1),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+            100% {
+                box-shadow: 
+                    0 10px 30px rgba(102, 126, 234, 0.4),
+                    0 0 0 0 rgba(102, 126, 234, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        /* Scan text label */
+        .scan-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .scan-container:hover .scan-label {
+            opacity: 1;
+            bottom: -35px;
+        }
+
+        /* Alternative design variations */
+        .scan-btn-variant-2 {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            box-shadow: 
+                0 10px 30px rgba(255, 107, 107, 0.4),
+                0 0 0 0 rgba(255, 107, 107, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .scan-btn-variant-2::before,
+        .scan-btn-variant-2::after {
+            border-color: rgba(255, 107, 107, 0.3);
+        }
+
+        .scan-btn-variant-3 {
+            background: linear-gradient(135deg, #48CAE4 0%, #0096C7 100%);
+            box-shadow: 
+                0 10px 30px rgba(72, 202, 228, 0.4),
+                0 0 0 0 rgba(72, 202, 228, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .scan-btn-variant-3::before,
+        .scan-btn-variant-3::after {
+            border-color: rgba(72, 202, 228, 0.3);
+        }
+
+        /* Glassmorphism variant */
+        .scan-btn-glass {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .scan-btn-glass::before,
+        .scan-btn-glass::after {
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Responsive design */
+        @media (max-width: 576px) {
+            .scan-btn {
+                width: 65px;
+                height: 65px;
+            }
+            
+            .scan-icon {
+                font-size: 28px;
+            }
+            
+            .scan-btn::before {
+                width: 85px;
+                height: 85px;
+            }
+            
+            .scan-btn::after {
+                width: 105px;
+                height: 105px;
+            }
+        }
+
+        /* Demo container */
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .demo-item {
+            text-align: center;
+        }
+
+        .variant-title {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
     </style>
-
   </div>
 </body>
 
