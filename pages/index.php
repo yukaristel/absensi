@@ -1,7 +1,19 @@
 <?php
-ob_start();
 session_start();
+
+if (!isset($_GET['page'])) {
+    // Redirect ke dashboard default jika tidak ada parameter page
+    $redirect_url = "index.php?page=dashboard";
+
+    if (isset($_SESSION['level']) && $_SESSION['level'] != 'admin') {
+        $redirect_url = "index.php?page=dashboard_" . $_SESSION['level'];
+    }
+
+    header("Location: " . $redirect_url);
+    exit();
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -157,4 +169,3 @@ session_start();
 </body>
 
 </html>
-<?php ob_end_flush(); ?>
