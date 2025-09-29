@@ -1,34 +1,130 @@
 ﻿<?php
+// Pastikan tidak ada output sebelum ini
+ob_start();
+
 include 'koneksi.php';
 
-// Proses AJAX untuk mencari data siswa berdasarkan NISN
+// Proses AJAX untuk mencari data siswa berdasarkan NISN dan cek/input absensi
 if (isset($_POST['nisn'])) {
-    $nisn = $_POST['nisn'];
+    ob_clean();
+    header('Content-Type: application/json');
     
-    $query = "SELECT id_siswa, nis, nisn, nama_siswa FROM siswa WHERE nisn = ?";
-    $stmt = $koneksi->prepare($query);
-    $stmt->bind_param("s", $nisn);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $nisn = trim($_POST['nisn']);
+    $tanggal_hari_ini = date('Y-m-d');
+    $jam_sekarang = date('H:i:s');
     
-    if ($result->num_rows > 0) {
-        $siswa = $result->fetch_assoc();
-        echo json_encode(['status' => 'success', 'data' => $siswa]);
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Data siswa tidak ditemukan']);
+    try {
+        // Cari data siswa
+        $query = "SELECT id_siswa, nis, nisn, nama_siswa FROM siswa WHERE nisn = ?";
+        $stmt = $coneksi->prepare($query);
+        
+        if (!$stmt) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Query error: ' . $coneksi->error
+            ]);
+            exit;
+        }
+        
+        $stmt->bind_param("s", $nisn);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            $siswa = $result->fetch_assoc();
+            $id_siswa = $siswa['id_siswa'];
+            
+            // Cek apakah sudah absen hari ini
+            $query_absen = "SELECT id_absen, jam_masuk, keterangan FROM absen WHERE id_siswa = ? AND tanggal = ?";
+            $stmt_absen = $coneksi->prepare($query_absen);
+            $stmt_absen->bind_param("is", $id_siswa, $tanggal_hari_ini);
+            $stmt_absen->execute();
+            $result_absen = $stmt_absen->get_result();
+            
+            if ($result_absen->num_rows > 0) {
+                // Sudah absen hari ini - tampilkan data absen
+                $absen = $result_absen->fetch_assoc();
+                echo json_encode([
+                    'status' => 'success',
+                    'already_absent' => true,
+                    'data' => [
+                        'id_siswa' => $siswa['id_siswa'],
+                        'nama_siswa' => $siswa['nama_siswa'],
+                        'jam_masuk' => $absen['jam_masuk'],
+                        'keterangan' => $absen['keterangan']
+                    ],
+                    'message' => 'Siswa sudah absen hari ini'
+                ]);
+            } else {
+                // Belum absen - insert data absen baru
+                $ip_address = $_SERVER['REMOTE_ADDR'];
+                $keterangan = 'Hadir';
+                
+                // Ambil lokasi/koordinat (contoh static, bisa diganti dengan geolocation)
+                $lokasi = 'Lokasi Scan';
+                $kota = 'Kota';
+                $isp = 'ISP Tidak Diketahui';
+                $koordinat = '0,0';
+                
+                $query_insert = "INSERT INTO absen (id_siswa, jam_masuk, tanggal, keterangan, ip_address, lokasi, kota, isp, koordinat) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt_insert = $coneksi->prepare($query_insert);
+                $stmt_insert->bind_param("issssssss", $id_siswa, $jam_sekarang, $tanggal_hari_ini, $keterangan, $ip_address, $lokasi, $kota, $isp, $koordinat);
+                
+                if ($stmt_insert->execute()) {
+                    echo json_encode([
+                        'status' => 'success',
+                        'already_absent' => false,
+                        'data' => [
+                            'id_siswa' => $siswa['id_siswa'],
+                            'nama_siswa' => $siswa['nama_siswa'],
+                            'jam_masuk' => $jam_sekarang,
+                            'keterangan' => $keterangan
+                        ],
+                        'message' => 'Absensi berhasil dicatat'
+                    ]);
+                } else {
+                    echo json_encode([
+                        'status' => 'error',
+                        'message' => 'Gagal menyimpan absensi: ' . $coneksi->error
+                    ]);
+                }
+                
+                $stmt_insert->close();
+            }
+            
+            $stmt_absen->close();
+        } else {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Data siswa dengan NISN "' . $nisn . '" tidak ditemukan'
+            ]);
+        }
+        
+        $stmt->close();
+        
+    } catch (Exception $e) {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Database error: ' . $e->getMessage()
+        ]);
     }
+    
+    $coneksi->close();
     exit;
 }
+
+ob_end_clean();
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scan QR Code - Data Siswa</title>
+    <title>Scan Barcode - Data Siswa</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -38,15 +134,19 @@ if (isset($_POST['nisn'])) {
         .scan-container { max-width: 500px; margin: 0 auto; padding: 20px; }
         .card { border: none; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95); }
         .card-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px 20px 0 0 !important; text-align: center; padding: 20px; border: none; }
-        .video-container { position: relative; background: #000; border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
-        #video { width: 100%; height: 300px; object-fit: cover; }
-        .scan-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 3px solid #fff; border-radius: 15px; box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3); }
-        .scan-text { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 14px; font-weight: 500; }
+        #reader { border-radius: 15px; overflow: hidden; margin-bottom: 20px; }
         .result-card { background: linear-gradient(135deg, #48CAE4 0%, #0096C7 100%); color: white; border-radius: 15px; padding: 20px; margin-top: 20px; display: none; }
+        .result-card.already { background: linear-gradient(135deg, #ffa500 0%, #ff8c00 100%); }
         .data-item { display: flex; justify-content: space-between; margin-bottom: 10px; padding: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 8px; }
-        .btn-reset { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); border: none; color: white; padding: 12px 25px; border-radius: 25px; font-weight: 500; margin-top: 15px; }
-        /* Debug Panel */
-        #debug { background:#000; color:#0f0; padding:10px; font-size:12px; max-height:200px; overflow:auto; margin-top:15px; border-radius:8px; }
+        .data-item strong { margin-right: 10px; }
+        .status-badge { display: inline-block; padding: 8px 16px; background: rgba(255, 255, 255, 0.2); border-radius: 20px; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        .btn-reset { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); border: none; color: white; padding: 12px 25px; border-radius: 25px; font-weight: 500; margin-top: 15px; width: 100%; }
+        .btn-reset:hover { opacity: 0.9; }
+        .btn-start { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 500; }
+        .btn-start:hover { opacity: 0.9; }
+        .btn-stop { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); border: none; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 500; }
+        .btn-stop:hover { opacity: 0.9; }
+        #reader__scan_region { border: 3px solid #667eea !important; }
     </style>
 </head>
 <body>
@@ -57,35 +157,47 @@ if (isset($_POST['nisn'])) {
                     <div class="card">
                         <div class="card-header">
                             <h4 class="mb-0">
-                                <i class="material-icons">qr_code_scanner</i> Scan QR Code Siswa
+                                <i class="material-icons">qr_code_scanner</i> Scan Barcode Siswa
                             </h4>
                         </div>
                         <div class="card-body">
-                            <!-- Dropdown Pilihan Kamera -->
-                            <div class="camera-dropdown">
+                            <!-- Pilihan Kamera -->
+                            <div class="mb-3">
                                 <label for="cameraSelect" class="form-label fw-bold">Pilih Kamera:</label>
-                                <select id="cameraSelect" class="form-select">
+                                <select id="cameraSelect" class="form-select mb-2">
                                     <option value="">Memuat kamera...</option>
                                 </select>
                             </div>
-                            <!-- Video Container -->
-                            <div class="video-container">
-                                <video id="video" autoplay muted playsinline></video>
-                                <div class="scan-overlay"><div class="scan-text">Arahkan QR Code di sini</div></div>
-                                <canvas id="canvas" style="display:none;"></canvas>
-                            </div>
-                            <!-- Status Message -->
-                            <div id="statusMessage" class="alert" style="display:none;"></div>
-                            <!-- Hasil Scan -->
-                            <div id="resultCard" class="result-card">
-                                <h5><i class="material-icons">person</i> Data Siswa</h5>
-                                <div id="studentData"></div>
-                                <button id="resetBtn" class="btn btn-reset w-100">
-                                    <i class="material-icons">refresh</i> Scan Lagi
+
+                            <!-- Control Buttons -->
+                            <div class="d-grid gap-2 mb-3">
+                                <button id="startBtn" class="btn btn-start">
+                                    <i class="material-icons" style="vertical-align: middle;">play_arrow</i>
+                                    Mulai Scan
+                                </button>
+                                <button id="stopBtn" class="btn btn-stop" style="display:none;">
+                                    <i class="material-icons" style="vertical-align: middle;">stop</i>
+                                    Stop Scan
                                 </button>
                             </div>
-                            <!-- Debug Panel -->
-                            <div id="debug">[DEBUG LOG]</div>
+
+                            <!-- Scanner Area -->
+                            <div id="reader"></div>
+
+                            <!-- Status Message -->
+                            <div id="statusMessage" class="alert" style="display:none;"></div>
+
+                            <!-- Hasil Scan -->
+                            <div id="resultCard" class="result-card">
+                                <h5 class="mb-3">
+                                    <i class="material-icons" style="vertical-align: middle;">person</i> 
+                                    Data Siswa
+                                </h5>
+                                <div id="studentData"></div>
+                                <button id="resetBtn" class="btn btn-reset">
+                                    <i class="material-icons" style="vertical-align: middle;">refresh</i> Scan Lagi
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -94,139 +206,216 @@ if (isset($_POST['nisn'])) {
     </div>
 
 <script>
-let video, canvas, context, currentStream;
-let scanning = true;
-
-function debugLog(msg) {
-    let debugDiv = document.getElementById('debug');
-    debugDiv.innerHTML += "<br>" + msg;
-    debugDiv.scrollTop = debugDiv.scrollHeight;
-}
+let html5QrcodeScanner = null;
+let isScanning = false;
 
 document.addEventListener('DOMContentLoaded', function() {
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    context = canvas.getContext('2d');
+    // Initialize scanner object
+    html5QrcodeScanner = new Html5Qrcode("reader");
+    
+    // Load cameras
+    loadCameras();
 
-    initCamera();
-
+    // Event listeners
+    document.getElementById('startBtn').addEventListener('click', startScanning);
+    document.getElementById('stopBtn').addEventListener('click', stopScanning);
     document.getElementById('resetBtn').addEventListener('click', resetScan);
-    document.getElementById('cameraSelect').addEventListener('change', function() {
-        if (this.value) switchCamera(this.value);
-    });
 });
 
-// Inisialisasi kamera
-async function initCamera() {
+// Load available cameras
+async function loadCameras() {
     try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(d => d.kind === 'videoinput');
-        const select = document.getElementById('cameraSelect');
-        select.innerHTML = '';
-        videoDevices.forEach((device, index) => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.text = device.label || `Kamera ${index+1}`;
-            select.appendChild(option);
-        });
-        if (videoDevices.length > 0) {
-            select.value = videoDevices[0].deviceId;
-            switchCamera(videoDevices[0].deviceId);
+        const devices = await Html5Qrcode.getCameras();
+        
+        if (devices && devices.length > 0) {
+            const select = document.getElementById('cameraSelect');
+            select.innerHTML = '';
+            
+            devices.forEach((device, index) => {
+                const option = document.createElement('option');
+                option.value = device.id;
+                option.text = device.label || `Kamera ${index + 1}`;
+                select.appendChild(option);
+            });
+            
+            // Select back camera if available
+            const backCamera = devices.find(d => d.label.toLowerCase().includes('back'));
+            if (backCamera) {
+                select.value = backCamera.id;
+            }
+            
+            showStatus("Pilih kamera dan klik 'Mulai Scan'", "info");
+        } else {
+            showStatus("Tidak ada kamera ditemukan", "danger");
         }
-    } catch (e) {
-        debugLog("Error akses kamera: " + e);
-        showStatus("Tidak dapat mengakses kamera", "danger");
+    } catch (err) {
+        showStatus("Error memuat kamera: " + err, "danger");
     }
 }
 
-// Ganti kamera
-async function switchCamera(deviceId) {
+// Start scanning
+async function startScanning() {
+    const cameraId = document.getElementById('cameraSelect').value;
+    
+    if (!cameraId) {
+        showStatus("Pilih kamera terlebih dahulu", "warning");
+        return;
+    }
+    
+    if (isScanning) {
+        return;
+    }
+    
     try {
-        if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-        const constraints = {
-            video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        const config = {
+            fps: 10,
+            qrbox: { width: 300, height: 150 },
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A,
+                Html5QrcodeSupportedFormats.UPC_E,
+                Html5QrcodeSupportedFormats.CODABAR,
+                Html5QrcodeSupportedFormats.ITF,
+                Html5QrcodeSupportedFormats.QR_CODE
+            ]
         };
-        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = currentStream;
-        video.onloadedmetadata = function() {
-            debugLog("Video loaded: " + video.videoWidth + "x" + video.videoHeight);
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            scanning = true;
-            debugLog("Start scanning...");
-            scanForQR();
-        };
-    } catch (e) {
-        debugLog("Error switchCamera: " + e);
-        showStatus("Gagal ganti kamera", "danger");
+        
+        await html5QrcodeScanner.start(
+            cameraId,
+            config,
+            onScanSuccess,
+            onScanError
+        );
+        
+        isScanning = true;
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'block';
+        document.getElementById('cameraSelect').disabled = true;
+        
+        showStatus("Scanner aktif. Arahkan barcode ke kamera.", "success");
+        
+    } catch (err) {
+        showStatus("Error memulai scanner: " + err, "danger");
+        isScanning = false;
     }
 }
 
-// Scan QR
-function scanForQR() {
-    if (!scanning) return;
-    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height);
-        if (code) {
-            debugLog("QR Detected: " + code.data);
-            scanning = false;
-            processQRCode(code.data);
-            return;
-        }
+// Stop scanning
+async function stopScanning() {
+    if (!isScanning) return;
+    
+    try {
+        await html5QrcodeScanner.stop();
+        
+        isScanning = false;
+        document.getElementById('startBtn').style.display = 'block';
+        document.getElementById('stopBtn').style.display = 'none';
+        document.getElementById('cameraSelect').disabled = false;
+        
+        showStatus("Scanner dihentikan", "info");
+        
+    } catch (err) {
+        console.log("Error stopping scanner: " + err);
     }
-    debugLog("Scanning...");
-    requestAnimationFrame(scanForQR);
 }
 
-// Proses hasil QR
-function processQRCode(qrData) {
-    showStatus("QR Terdeteksi: " + qrData, "success");
-    if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-    fetch("", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "nisn=" + encodeURIComponent(qrData)
+// On scan success
+function onScanSuccess(decodedText, decodedResult) {
+    // Stop scanning
+    stopScanning();
+    
+    // Fetch student data from database
+    fetchStudentData(decodedText);
+}
+
+// On scan error (ignore, happens frequently)
+function onScanError(errorMessage) {
+    // Ignore, ini normal saat scanning
+}
+
+// Fetch student data from database
+function fetchStudentData(nisn) {
+    showStatus("Memproses absensi...", "info");
+    
+    fetch('', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'nisn=' + encodeURIComponent(nisn)
     })
-    .then(r => r.json())
+    .then(response => response.json())
     .then(data => {
-        if (data.status === "success") showStudentData(data.data);
-        else showStatus(data.message, "danger");
+        if (data.status === 'success') {
+            showStudentData(data.data, data.already_absent, data.message);
+        } else {
+            showStatus(data.message || 'Data siswa tidak ditemukan', 'danger');
+        }
     })
-    .catch(e => {
-        debugLog("Fetch error: " + e);
-        showStatus("Error mencari data siswa", "danger");
+    .catch(error => {
+        showStatus('Error: ' + error.message, 'danger');
     });
 }
 
-// Tampilkan data siswa
-function showStudentData(s) {
-    document.getElementById("studentData").innerHTML = `
-        <div class="data-item"><b>ID:</b> ${s.id_siswa}</div>
-        <div class="data-item"><b>NIS:</b> ${s.nis}</div>
-        <div class="data-item"><b>NISN:</b> ${s.nisn}</div>
-        <div class="data-item"><b>Nama:</b> ${s.nama_siswa}</div>
+// Show student data
+function showStudentData(siswa, alreadyAbsent, message) {
+    const resultCard = document.getElementById('resultCard');
+    const statusText = alreadyAbsent ? '⚠️ SUDAH ABSEN' : '✓ ABSENSI BERHASIL';
+    const statusClass = alreadyAbsent ? 'already' : '';
+    
+    const html = `
+        <div class="status-badge">${statusText}</div>
+        <div class="data-item">
+            <strong>ID Siswa:</strong>
+            <span>${siswa.id_siswa}</span>
+        </div>
+        <div class="data-item">
+            <strong>Nama:</strong>
+            <span>${siswa.nama_siswa}</span>
+        </div>
+        <div class="data-item">
+            <strong>Jam Masuk:</strong>
+            <span>${siswa.jam_masuk}</span>
+        </div>
+        <div class="data-item">
+            <strong>Keterangan:</strong>
+            <span>${siswa.keterangan}</span>
+        </div>
     `;
-    document.getElementById("resultCard").style.display = "block";
+    
+    document.getElementById('studentData').innerHTML = html;
+    resultCard.className = 'result-card ' + statusClass;
+    resultCard.style.display = 'block';
+    document.getElementById('statusMessage').style.display = 'none';
 }
 
 // Reset scan
-function resetScan() {
-    scanning = true;
+async function resetScan() {
     document.getElementById("resultCard").style.display = "none";
-    const deviceId = document.getElementById("cameraSelect").value;
-    if (deviceId) switchCamera(deviceId); else initCamera();
+    document.getElementById("statusMessage").style.display = "none";
+    
+    if (isScanning) {
+        await stopScanning();
+    }
+    
+    showStatus("Pilih kamera dan klik 'Mulai Scan'", "info");
 }
 
-// Status message
+// Show status
 function showStatus(msg, type) {
     const el = document.getElementById("statusMessage");
     el.textContent = msg;
     el.className = "alert alert-" + type;
     el.style.display = "block";
 }
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', async function() {
+    if (isScanning) {
+        await stopScanning();
+    }
+});
 </script>
 </body>
 </html>
