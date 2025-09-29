@@ -1,12 +1,25 @@
-  <?php
-  session_start();
-  include 'koneksi.php';
+<?php
+session_start();
+include 'koneksi.php';
 
-  if (!isset($_SESSION['level'])) {
+if (!isset($_SESSION['level'])) {
     header("Location: pages/sign-in.php");
     exit();
-  }
-  ?>
+}
+
+// Redirect jika tidak ada parameter page
+if (!isset($_GET['page']) || $_GET['page'] === '') {
+    $redirect_url = "index.php?page=dashboard";
+
+    if ($_SESSION['level'] != 'admin') {
+        $redirect_url = "index.php?page=dashboard_" . $_SESSION['level'];
+    }
+
+    header("Location: " . $redirect_url);
+    exit();
+}
+?>
+
 
   <!DOCTYPE html>
   <html lang="en">
